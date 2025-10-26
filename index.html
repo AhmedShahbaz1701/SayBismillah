@@ -317,6 +317,7 @@
         const shareBtn = document.getElementById('shareBtn');
         
         let playCount = 0;
+        let hasPlayedOneSecond = false;  // Track if we've played at least 1 second
         
         // Load play count from server on page load
         async function loadPlayCount() {
@@ -331,15 +332,8 @@
             }
         }
         
-        // Initialize - load count from server
-        loadPlayCount();
-        
-        button.addEventListener('click', async () => {
-            audio.currentTime = 0;
-            audio.play();
-            button.classList.add('playing');
-            
-            // Increment on server and update display
+        // Increment play count on server
+        async function incrementPlayCount() {
             try {
                 const response = await fetch('/api/plays');
                 const data = await response.json();
@@ -350,6 +344,24 @@
                 // Still increment locally as fallback
                 playCount++;
                 playCountEl.textContent = playCount.toLocaleString();
+            }
+        }
+        
+        // Initialize - load count from server
+        loadPlayCount();
+        
+        button.addEventListener('click', () => {
+            audio.currentTime = 0;
+            audio.play();
+            button.classList.add('playing');
+            hasPlayedOneSecond = false;  // Reset flag on each play
+        });
+        
+        // Listen for timeupdate event to detect when 1 second has been played
+        audio.addEventListener('timeupdate', () => {
+            if (!hasPlayedOneSecond && audio.currentTime >= 1) {
+                hasPlayedOneSecond = true;
+                incrementPlayCount();
             }
         });
         

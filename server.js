@@ -11,7 +11,7 @@ if (!fs.existsSync(COUNTER_FILE)) {
   fs.writeFileSync(COUNTER_FILE, JSON.stringify({ count: 0 }));
 }
 
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(__dirname));
 
 app.get('/api/visitors', (req, res) => {
   const data = JSON.parse(fs.readFileSync(COUNTER_FILE));

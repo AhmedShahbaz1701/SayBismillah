@@ -18,14 +18,25 @@ client.on('error', (err) => console.log('Redis Client Error', err));
 // Serve static files from root directory
 app.use(express.static(__dirname));
 
-// Visitor counter endpoint
-app.get('/api/visitors', async (req, res) => {
+// Play counter endpoint
+app.get('/api/plays', async (req, res) => {
   try {
-    const count = await client.incr('visitor_count');
+    const count = await client.incr('play_count');
     res.json({ count });
   } catch (error) {
     console.error('Redis error:', error);
     res.status(500).json({ error: 'Failed to update counter' });
+  }
+});
+
+// Get current play count without incrementing
+app.get('/api/plays/current', async (req, res) => {
+  try {
+    const count = await client.get('play_count');
+    res.json({ count: parseInt(count) || 0 });
+  } catch (error) {
+    console.error('Redis error:', error);
+    res.status(500).json({ error: 'Failed to get counter' });
   }
 });
 
